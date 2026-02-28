@@ -93,17 +93,25 @@ def build_engine(onnx_path, mode='fp16', calibration_dataset=None):
     # Create config
     config = builder.create_builder_config()
     
-    # Handle dynamic inputs - create optimization profile
+    # Create optimization profile
     profile = builder.create_optimization_profile()
-    
-    # Set min, opt, max batch sizes
-    min_shape = (1, 3, 640, 232)
-    opt_shape = (8, 3, 640, 232)
-    max_shape = (32, 3, 640, 232)
-    
-    # Set profile for all inputs
+
+    # Detect dynamic batch: TensorRT uses -1 for dynamic dims
+    shape = tuple(input_shape)
+
+    if shape[0] == -1:
+        # Dynamic batch ONNX: choose a reasonable profile
+        min_shape = (1, shape[1], shape[2], shape[3])
+        opt_shape = (8, shape[1], shape[2], shape[3])
+        max_shape = (32, shape[1], shape[2], shape[3])
+    else:
+        # Static ONNX: profile must match exactly
+        min_shape = opt_shape = max_shape = shape
+
     profile.set_shape(input_tensor.name, min_shape, opt_shape, max_shape)
     config.add_optimization_profile(profile)
+
+    print(f"Profile shapes min/opt/max: {min_shape} / {opt_shape} / {max_shape}")
     
     # Set precision
     if mode == 'fp16':

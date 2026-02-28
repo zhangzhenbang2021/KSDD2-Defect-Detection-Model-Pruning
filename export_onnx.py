@@ -98,11 +98,14 @@ class PrunedSegDecNet(nn.Module):
         self.glob_avg_lr_multiplier_layer = GradientMultiplyLayer.apply
         
         self.device = device
+        self.register_buffer("volume_lr_multiplier_mask", torch.ones(1))
+        self.register_buffer("glob_max_lr_multiplier_mask", torch.ones(1))
+        self.register_buffer("glob_avg_lr_multiplier_mask", torch.ones(1))
         
     def set_gradient_multipliers(self, multiplier):
-        self.volume_lr_multiplier_mask = (torch.ones((1,)) * multiplier).to(self.device)
-        self.glob_max_lr_multiplier_mask = (torch.ones((1,)) * multiplier).to(self.device)
-        self.glob_avg_lr_multiplier_mask = (torch.ones((1,)) * multiplier).to(self.device)
+        self.volume_lr_multiplier_mask.fill_(multiplier)
+        self.glob_max_lr_multiplier_mask.fill_(multiplier)
+        self.glob_avg_lr_multiplier_mask.fill_(multiplier)
         
     def forward(self, input):
         x = self.v1(input)
@@ -187,7 +190,7 @@ def export_to_onnx(model_path, output_path, device='cuda'):
         model = SegDecNet(device, 232, 640, 3)
     
     # Load weights
-    model.load_state_dict(state_dict)
+    model.load_state_dict(state_dict, strict=False)
     model = model.to(device)
     model.eval()
     model.set_gradient_multipliers(1.0)
@@ -201,15 +204,10 @@ def export_to_onnx(model_path, output_path, device='cuda'):
         dummy_input,
         output_path,
         export_params=True,
-        opset_version=13,
+        opset_version=18,              # <- key change
         do_constant_folding=True,
         input_names=['input'],
         output_names=['decision', 'seg_mask'],
-        dynamic_axes={
-            'input': {0: 'batch_size'},
-            'decision': {0: 'batch_size'},
-            'seg_mask': {0: 'batch_size'}
-        }
     )
     
     # Verify ONNX file
