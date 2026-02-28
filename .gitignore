@@ -1,0 +1,94 @@
+# ----------------------------
+# Python / caches
+# ----------------------------
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.log
+
+# ----------------------------
+# OS / Editor
+# ----------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ----------------------------
+# Environments
+# ----------------------------
+.venv/
+venv/
+env/
+ENV/
+conda/
+*.conda
+
+# ----------------------------
+# Keep data/ and datasets/, but ignore heavy subsets
+# ----------------------------
+# Keep everything by default...
+!data/
+!datasets/
+
+# ...but ignore dataset splits you don't want tracked
+datasets/**/train/
+datasets/**/test/
+
+# ignore kolektorsdd2 (file or directory)
+datasets/**/kolektorsdd2
+datasets/**/kolektorsdd2/
+datasets/KSDD2/kolektorsdd2
+
+test/
+train/
+calibration_images/
+
+# ----------------------------
+# Training outputs
+# ----------------------------
+# Keep results (as requested)
+!results/
+
+# Ignore common run directories (keep if you use them)
+runs/
+wandb/
+mlruns/
+tensorboard/
+checkpoints/
+logs/
+
+# ----------------------------
+# Model / export artifacts (usually generated)
+# ----------------------------
+*.pth
+*.ckpt
+*.pt
+*.onnx
+*.onnx.data
+
+# TensorRT engines / caches
+*.engine
+*.plan
+*.cache
+calibration_cache.cache
+
+# Generated charts/reports (adjust if you want to keep them)
+chart*.png
+
+# If you want to keep specific plots/pdfs in results/, allow them:
+!results/**/*.png
+!results/**/*.pdf
+!results/**/*.csv
+
+# ----------------------------
+# Numpy artifacts (optional)
+# ----------------------------
+*.npy
+*.npz

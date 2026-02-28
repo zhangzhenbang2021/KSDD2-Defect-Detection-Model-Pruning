@@ -15,7 +15,7 @@ echo "======================================================================"
 # -----------------------------------------------------------------------------
 echo ""
 echo "[Step 0] Checking environment..."
-python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA: {torch.cuda.is_available()}')"
+python3 -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA: {torch.cuda.is_available()}')"
 
 # -----------------------------------------------------------------------------
 # Step 1: Baseline Model Training
@@ -25,7 +25,7 @@ echo "======================================================================"
 echo "[Step 1] Baseline Model Training (50 epochs)"
 echo "======================================================================"
 
-python -u train_net.py \
+python3 -u train_net.py \
     --GPU=0 \
     --RUN_NAME=N_246 \
     --DATASET=KSDD2 \
@@ -56,7 +56,7 @@ echo "[Step 2] Naive A - L1 Norm Channel Pruning"
 echo "======================================================================"
 
 echo "--- L1 Pruning 20% 40% 60% ---"
-python run_l1_pruning.py 
+python3 run_l1_pruning.py 
 
 # -----------------------------------------------------------------------------
 # Step 3: Naive B - Network Slimming (FN-gamma) Channel Pruning
@@ -67,7 +67,7 @@ echo "[Step 3] Naive B - Network Slimming (FN-gamma) Channel Pruning"
 echo "======================================================================"
 
 echo "--- FN Pruning 20% 40% 60% ---"
-python run_fn_pruning.py 
+python3 run_fn_pruning.py 
 
 
 # -----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ echo "[Step 4] C1 - Hardware-Aligned L1 Structured Pruning (N=32)"
 echo "======================================================================"
 
 echo "--- C1 Pruning 20% 40% 60% ---"
-python run_c1_pruning.py 
+python3 run_c1_pruning.py 
 
 
 # -----------------------------------------------------------------------------
@@ -91,7 +91,7 @@ echo "[Step 5] C2 - Pure Defect-Aware Pruning"
 echo "======================================================================"
 
 echo "--- C2 Pruning 20% 40% 60% ---"
-python run_c2_pruning.py 
+python3 run_c2_pruning.py 
 
 
 # -----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ echo "[Step 6] C3 - L1 + Activation Correlation Pruning"
 echo "======================================================================"
 
 echo "--- C3 Pruning 20% 40% 60% ---"
-python run_c3_pruning.py 
+python3 run_c3_pruning.py 
 
 
 # -----------------------------------------------------------------------------
@@ -115,7 +115,7 @@ echo "[Step 7] C4 - Taylor-FO Gradient-Weighted L1 Structured Pruning"
 echo "======================================================================"
 
 echo "--- C4 Pruning 20% 40% 60% ---"
-python run_c4_pruning.py 
+python3 run_c4_pruning.py 
 
 
 # -----------------------------------------------------------------------------
@@ -125,7 +125,7 @@ echo ""
 echo "======================================================================"
 echo "[Step 8] Architecture Acceptance & Static Data Profiling"
 echo "======================================================================"
-python profile_models.py
+python3 profile_models.py
 
 # -----------------------------------------------------------------------------
 # Step 9: ONNX Export
@@ -162,7 +162,7 @@ for model_pair in "${MODELS[@]}"; do
     onnx_file="${model_pair##*:}"
     if [ -f "$pth_file" ] && [ ! -f "$onnx_file" ]; then
         echo "Exporting: $pth_file -> $onnx_file"
-        python export_onnx.py --model $pth_file --output $onnx_file
+        python3 export_onnx.py --model $pth_file --output $onnx_file
     else
         echo "Skipping: $onnx_file (already exists)"
     fi
@@ -175,7 +175,7 @@ echo ""
 echo "======================================================================"
 echo "[Step 10] Prepare INT8 Calibration Dataset"
 echo "======================================================================"
-python prepare_calibration_dataset.py
+python3 prepare_calibration_dataset.py
 
 # -----------------------------------------------------------------------------
 # Step 11: TensorRT Inference Engine Compilation
@@ -200,7 +200,7 @@ for onnx_file in "${ONNX_FILES[@]}"; do
     engine_file="${onnx_file%.onnx}_fp16.engine"
     if [ -f "$onnx_file" ] && [ ! -f "$engine_file" ]; then
         echo "Compiling FP16: $onnx_file -> $engine_file"
-        python compile_tensorrt.py --model $onnx_file --mode fp16
+        python3 compile_tensorrt.py --model $onnx_file --mode fp16
     else
         echo "Skipping: $engine_file (already exists)"
     fi
@@ -213,8 +213,8 @@ echo ""
 echo "======================================================================"
 echo "[Step 12] Model Evaluation & Result Chart Generation"
 echo "======================================================================"
-python evaluate_models.py
-python generate_charts.py
+python3 evaluate_models.py
+python3 generate_charts.py
 
 # -----------------------------------------------------------------------------
 # Complete
