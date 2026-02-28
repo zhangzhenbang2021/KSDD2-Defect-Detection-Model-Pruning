@@ -31,6 +31,8 @@ This project implements structured channel pruning for a SegDecNet (Segmentation
 1. Clone the repository and install dependencies:
 ```bash
 pip install torch torchvision numpy matplotlib pillow tensorrt
+
+pip install -r requirements.txt
 ```
 
 2. Prepare the KSDD2 dataset:
